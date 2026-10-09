@@ -26,6 +26,7 @@ function setMode(m) {
     $('inputUsername').value = '';
     $('inputPassword').value = '';
     $('errorMsg').textContent = '';
+    $('errorMsg').style.color = '#ff4757';
     showState('Form');
 }
 
@@ -34,7 +35,9 @@ $('tabRegister').onclick = () => setMode('register');
 
 $('btnSubmit').onclick = async () => {
     $('errorMsg').textContent = '';
+    $('errorMsg').style.color = '#ff4757';
     $('btnSubmit').disabled = true;
+    $('btnSubmit').textContent = 'Đang xử lý...';
 
     try {
         if (mode === 'login') {
@@ -68,12 +71,14 @@ $('btnSubmit').onclick = async () => {
 
             pendingEmail = data.email;
             showState('Otp');
-            document.querySelector('.otp-input').focus();
+            const firstInput = document.querySelector('.otp-input');
+            if (firstInput) firstInput.focus();
         }
     } catch (e) {
         $('errorMsg').textContent = e.message;
     } finally {
         $('btnSubmit').disabled = false;
+        $('btnSubmit').textContent = mode === 'login' ? 'Đăng nhập' : 'Đăng ký';
     }
 };
 
@@ -100,6 +105,7 @@ $('btnVerifyOtp').onclick = async () => {
     if (code.length !== 6) { $('otpError').textContent = 'Nhập đủ 6 số'; return; }
 
     $('btnVerifyOtp').disabled = true;
+    $('btnVerifyOtp').textContent = 'Đang xác thực...';
     try {
         const res = await fetch(`${API}/auth/verify-otp`, {
             method: 'POST',
@@ -117,6 +123,7 @@ $('btnVerifyOtp').onclick = async () => {
         $('otpError').textContent = e.message;
     } finally {
         $('btnVerifyOtp').disabled = false;
+        $('btnVerifyOtp').textContent = 'Xác thực';
     }
 };
 
@@ -133,7 +140,10 @@ $('btnResend').onclick = async () => {
         if (!res.ok) throw new Error(data.error);
         $('otpError').style.color = '#22c55e';
         $('otpError').textContent = 'Đã gửi lại mã mới';
-        setTimeout(() => { $('otpError').textContent = ''; $('otpError').style.color = '#ff4757'; }, 3000);
+        setTimeout(() => {
+            $('otpError').textContent = '';
+            $('otpError').style.color = '#ff4757';
+        }, 3000);
     } catch (e) {
         $('otpError').style.color = '#ff4757';
         $('otpError').textContent = e.message;
